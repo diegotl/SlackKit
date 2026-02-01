@@ -113,9 +113,7 @@ public struct InputBlock: Block {
         try container.encodeIfPresent(optional, forKey: .optional)
 
         // Encode element polymorphically
-        if let elementValue = element as? Encodable {
-            try container.encode(elementValue, forKey: .element)
-        }
+        try container.encode(element, forKey: .element)
     }
 }
 
