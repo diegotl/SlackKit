@@ -1,5 +1,9 @@
 # SlackKit
 
+<img src="logo.png" alt="SlackKit Logo" width="400">
+
+[![CI](https://github.com/diegotl/SlackKit/actions/workflows/ci.yml/badge.svg)](https://github.com/diegotl/SlackKit/actions/workflows/ci.yml)
+
 [Swift](https://swift.org) package for sending messages to [Slack](https://slack.com) via Incoming Webhooks with full support for [Block Kit](https://api.slack.com/block-kit).
 
 ## Features
