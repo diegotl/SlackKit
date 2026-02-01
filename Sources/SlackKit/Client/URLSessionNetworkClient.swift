@@ -1,0 +1,43 @@
+import Foundation
+
+// MARK: - URLSessionNetworkClient
+
+/// A URLSession-based implementation of NetworkClient
+public actor URLSessionNetworkClient: NetworkClient {
+    private let session: URLSession
+    private let decoder: JSONDecoder
+
+    /// Initializes a new URLSession network client
+    /// - Parameters:
+    ///   - session: The URLSession to use for requests (defaults to shared)
+    ///   - decoder: The JSONDecoder to use for decoding responses (defaults to standard)
+    public init(
+        session: URLSession = .shared,
+        decoder: JSONDecoder = JSONDecoder()
+    ) {
+        self.session = session
+        self.decoder = decoder
+    }
+
+    public func post(url: URL, body: Data) async throws -> HTTPResponse {
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = body
+
+        do {
+            let (data, response) = try await session.data(for: request)
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw SlackError.invalidResponse(statusCode: -1, body: "Invalid response type")
+            }
+
+            return HTTPResponse(statusCode: httpResponse.statusCode, data: data)
+        } catch let error as SlackError {
+            throw error
+        } catch let error as NSError {
+            // Wrap NSError in SlackError
+            throw SlackError.networkError(error)
+        }
+    }
+}
