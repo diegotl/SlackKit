@@ -11,6 +11,15 @@ swift test               # Run all tests
 swift test --filter <name>  # Run specific test (e.g., "sendMessage")
 ```
 
+### Git Commits
+
+Commit messages should be short and concise, multi-line is acceptable. Describe all changes made.
+
+Example format:
+```
+Center logo and add badges. Update CLAUDE commit guide.
+```
+
 ### Platform Requirements
 - macOS 12.0+, iOS 15.0+, tvOS 15.0+, watchOS 8.0+
 - Swift 6.0+ with strict concurrency enabled

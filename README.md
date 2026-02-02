@@ -1,8 +1,23 @@
 # SlackKit
 
-<img src="logo.png" alt="SlackKit Logo" width="400">
+<p align="center">
+    <img src="logo.png" alt="SlackKit Logo" width="400">
+</p>
 
-[![CI](https://github.com/diegotl/SlackKit/actions/workflows/ci.yml/badge.svg)](https://github.com/diegotl/SlackKit/actions/workflows/ci.yml)
+<p align="center">
+    <a href="https://github.com/diegotl/SlackKit/actions/workflows/ci.yml">
+        <img src="https://github.com/diegotl/SlackKit/actions/workflows/ci.yml/badge.svg" alt="CI">
+    </a>
+    <a href="https://github.com/diegotl/SlackKit/releases">
+        <img src="https://img.shields.io/github/v/release/diegotl/SlackKit" alt="Version">
+    </a>
+    <a href="LICENSE">
+        <img src="https://img.shields.io/github/license/diegotl/SlackKit" alt="License">
+    </a>
+    <img src="https://img.shields.io/badge/platform-macos%20%7C%20ios%20%7C%20tvos%20%7C%20watchos-lightgrey" alt="Platform">
+    <img src="https://img.shields.io/badge/swift-6.0-orange.svg" alt="Swift">
+    <img src="https://img.shields.io/badge/dependencies-zero-brightgreen" alt="Dependencies">
+</p>
 
 [Swift](https://swift.org) package for sending messages to [Slack](https://slack.com) via Incoming Webhooks with full support for [Block Kit](https://api.slack.com/block-kit).
 
@@ -12,8 +27,6 @@
 - **Type-Safe** - Full Codable support with compile-time safety
 - **Block Kit** - Complete support for Slack's Block Kit API
 - **Flexible** - Send simple text messages or rich interactive messages
-- **Testable** - Protocol-based networking for easy unit testing
-- **Zero Dependencies** - Uses only Foundation's URLSession
 
 ## Requirements
 
@@ -333,68 +346,6 @@ do {
     print("Network error: \(error)")
 }
 ```
-
-## Testing
-
-### Mock Network Client
-
-For testing, use the provided mock:
-
-```swift
-import SlackKit
-import Testing
-
-@Test func sendMessage() async throws {
-    let mockClient = MockNetworkClient()
-    mockClient.addResponse(statusCode: 200, data: okResponse)
-
-    let client = SlackWebhookClient(
-        webhookURL: testURL,
-        networkClient: mockClient
-    )
-
-    let message = Message(text: "Test")
-    let response = try await client.send(message)
-
-    #expect(response.ok == true)
-}
-```
-
-## API Reference
-
-### SlackWebhookClient
-
-Main client for sending messages to Slack.
-
-```swift
-// Initialize with URL
-let client = SlackWebhookClient(webhookURL: url)
-
-// Initialize with URL string (throws if invalid)
-let client = try SlackWebhookClient.create(webhookURLString: urlString)
-
-// Send a message
-let response = try await client.send(message)
-```
-
-### Message
-
-A Slack webhook message.
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `text` | `String?` | Fallback text (required when using blocks) |
-| `blocks` | `[any Block]?` | Array of layout blocks |
-| `attachments` | `[Attachment]?` | Legacy attachments |
-| `username` | `String?` | Override bot username |
-| `iconEmoji` | `String?` | Override bot icon with emoji (e.g., `:robot_face:`) |
-| `iconURL` | `String?` | Override bot icon with image URL |
-| `channel` | `String?` | Override default channel |
-| `threadTimestamp` | `String?` | Parent message timestamp for threading |
-| `unfurlLinks` | `Bool?` | Enable automatic link unfurling |
-| `unfurlMedia` | `Bool?` | Enable automatic media unfurling |
-| `mrkdwn` | `Bool?` | Enable/disable markdown formatting |
-| `replyBroadcast` | `Bool?` | Reply broadcasts (for threaded messages) |
 
 ## Contributing
 
