@@ -214,4 +214,139 @@ struct MessageTests {
         #expect(json.contains("\"blocks\""))
         #expect(json.contains("\"type\":\"section\""))
     }
+
+    // MARK: - Builder API Tests
+
+    @Test("Build message with result builder - simple case")
+    func buildMessageWithResultBuilderSimple() throws {
+        // Arrange
+        let message = Message {
+            Section("Hello, World!")
+            Divider()
+        }
+
+        // Act
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        let data = try encoder.encode(message)
+        let json = String(data: data, encoding: .utf8)!
+
+        // Assert
+        #expect(json.contains("\"type\":\"section\""))
+        #expect(json.contains("\"type\":\"divider\""))
+        #expect(json.contains("\"blocks\""))
+        #expect(json.contains("Hello, World!"))
+    }
+
+    @Test("Build message with result builder and text")
+    func buildMessageWithResultBuilderAndText() throws {
+        // Arrange
+        let message = Message(text: "Fallback") {
+            Header("Important Header")
+            Section(markdown: "This is *markdown* text")
+            Divider()
+        }
+
+        // Act
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        let data = try encoder.encode(message)
+        let json = String(data: data, encoding: .utf8)!
+
+        // Assert
+        #expect(json.contains("\"text\":\"Fallback\""))
+        #expect(json.contains("\"type\":\"header\""))
+        #expect(json.contains("\"type\":\"section\""))
+        #expect(json.contains("\"type\":\"divider\""))
+    }
+
+    @Test("Build message with conditional blocks")
+    func buildMessageWithConditionalBlocks() throws {
+        // Arrange
+        let showDivider = true
+        let message = Message {
+            Section("First section")
+            if showDivider {
+                Divider()
+            }
+        }
+
+        // Act
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(message)
+        let json = String(data: data, encoding: .utf8)!
+
+        // Assert
+        #expect(json.contains("\"type\":\"section\""))
+        #expect(json.contains("\"type\":\"divider\""))
+    }
+
+    @Test("Build message with all convenience functions")
+    func buildMessageWithAllConvenienceFunctions() throws {
+        // Arrange
+        let message = Message {
+            Header("Welcome!")
+            Section("This is a section")
+            Divider()
+            Image(url: "https://example.com/image.png", altText: "Example image")
+            Context("Some context text", "More context")
+        }
+
+        // Act
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(message)
+        let json = String(data: data, encoding: .utf8)!
+
+        // Assert
+        #expect(json.contains("\"type\":\"header\""))
+        #expect(json.contains("\"type\":\"section\""))
+        #expect(json.contains("\"type\":\"divider\""))
+        #expect(json.contains("\"type\":\"image\""))
+        #expect(json.contains("\"type\":\"context\""))
+    }
+
+    @Test("Build empty message with result builder")
+    func buildEmptyMessageWithResultBuilder() throws {
+        // Arrange
+        let message = Message {
+            // Empty builder
+        }
+
+        // Act
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(message)
+        let json = String(data: data, encoding: .utf8)!
+
+        // Assert
+        // Empty blocks array should be encoded as empty or null
+        #expect(!json.contains("\"type\"") || !json.contains("\"blocks\""))
+    }
+
+    @Test("Build message with result builder and all options")
+    func buildMessageWithResultBuilderAndAllOptions() throws {
+        // Arrange
+        let message = Message(
+            text: "Fallback",
+            username: "TestBot",
+            iconEmoji: ":robot_face:",
+            channel: "#test"
+        ) {
+            Header("Test Message")
+            Section("This is a test")
+        }
+
+        // Act
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        let data = try encoder.encode(message)
+        let json = String(data: data, encoding: .utf8)!
+
+        // Assert
+        #expect(json.contains("\"text\":\"Fallback\""))
+        #expect(json.contains("\"username\":\"TestBot\""))
+        #expect(json.contains("\"icon_emoji\":\":robot_face:\""))
+        #expect(json.contains("\"channel\":\"#test\""))
+        #expect(json.contains("\"type\":\"header\""))
+        #expect(json.contains("\"type\":\"section\""))
+    }
 }
