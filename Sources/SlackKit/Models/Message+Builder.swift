@@ -108,6 +108,23 @@ extension Message {
 
 // MARK: - Block Convenience Functions
 
+/// Helper enum for creating section block fields
+public enum Field {
+    /// Creates a markdown field
+    /// - Parameter string: The markdown string
+    /// - Returns: A TextObject with markdown formatting
+    public static func markdown(_ string: String) -> TextObject {
+        .markdown(string)
+    }
+
+    /// Creates a plain text field
+    /// - Parameter string: The plain text string
+    /// - Returns: A TextObject with plain text formatting
+    public static func plainText(_ string: String) -> TextObject {
+        .plainText(string)
+    }
+}
+
 /// Creates a section block with plain text
 /// - Parameters:
 ///   - text: The text string for the section
@@ -124,6 +141,48 @@ public func Section(_ text: String, blockID: String? = nil) -> SectionBlock {
 /// - Returns: A section block with markdown text
 public func Section(markdown: String, blockID: String? = nil) -> SectionBlock {
     SectionBlock(text: .markdown(markdown), blockID: blockID)
+}
+
+/// Creates a section block with fields using a result builder
+/// - Parameters:
+///   - text: Optional text for the block
+///   - accessory: An optional accessory element
+///   - blockID: An optional identifier for the block
+///   - builder: A result builder closure that provides the fields
+/// - Returns: A section block with fields
+public func Section(
+    text: String? = nil,
+    accessory: (any BlockElement)? = nil,
+    blockID: String? = nil,
+    @FieldsBuilder builder: () -> [TextObject]
+) -> SectionBlock {
+    SectionBlock(
+        text: text.map { .plainText($0) },
+        accessory: accessory,
+        blockID: blockID,
+        builder: builder
+    )
+}
+
+/// Creates a section block with markdown text and fields using a result builder
+/// - Parameters:
+///   - markdown: Optional markdown text for the block
+///   - accessory: An optional accessory element
+///   - blockID: An optional identifier for the block
+///   - builder: A result builder closure that provides the fields
+/// - Returns: A section block with fields
+public func Section(
+    markdown: String? = nil,
+    accessory: (any BlockElement)? = nil,
+    blockID: String? = nil,
+    @FieldsBuilder builder: () -> [TextObject]
+) -> SectionBlock {
+    SectionBlock(
+        text: markdown.map { .markdown($0) },
+        accessory: accessory,
+        blockID: blockID,
+        builder: builder
+    )
 }
 
 /// Creates a divider block
@@ -173,6 +232,18 @@ public func Context(elements: [any ContextElement], blockID: String? = nil) -> C
     ContextBlock(elements: elements, blockID: blockID)
 }
 
+/// Creates a context block using a result builder
+/// - Parameters:
+///   - blockID: An optional identifier for the block
+///   - builder: A result builder closure that provides the elements
+/// - Returns: A context block
+public func Context(
+    blockID: String? = nil,
+    @ContextBuilder builder: () -> [any ContextElement]
+) -> ContextBlock {
+    ContextBlock(elements: builder(), blockID: blockID)
+}
+
 /// Creates an actions block with elements
 /// - Parameters:
 ///   - elements: The interactive elements
@@ -180,6 +251,18 @@ public func Context(elements: [any ContextElement], blockID: String? = nil) -> C
 /// - Returns: An actions block
 public func Actions(_ elements: any BlockElement..., blockID: String? = nil) -> ActionsBlock {
     ActionsBlock(elements: elements, blockID: blockID)
+}
+
+/// Creates an actions block using a result builder
+/// - Parameters:
+///   - blockID: An optional identifier for the block
+///   - builder: A result builder closure that provides the elements
+/// - Returns: An actions block
+public func Actions(
+    blockID: String? = nil,
+    @ActionsBuilder builder: () -> [any BlockElement]
+) -> ActionsBlock {
+    ActionsBlock(elements: builder(), blockID: blockID)
 }
 
 /// Creates an input block
