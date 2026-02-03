@@ -546,7 +546,7 @@ struct SlackKitIntegrationTests {
                     text: .plainText("Select a date:"),
                     accessory: DatePickerElement(
                         placeholder: .plainText("Pick a date"),
-                        initialDate: Int(Date().timeIntervalSince1970)
+                        initialDate: DatePickerElement.formatDate(Date())
                     )
                 )
             ]

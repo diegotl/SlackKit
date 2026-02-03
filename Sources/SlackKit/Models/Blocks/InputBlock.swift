@@ -54,7 +54,7 @@ public struct InputBlock: Block {
         case blockID = "block_id"
         case label
         case element
-        case dispatchAction = "dispatch_action_config"
+        case dispatchAction = "dispatch_action"
         case hint
         case optional
     }
@@ -73,21 +73,23 @@ public struct InputBlock: Block {
         // Decode element polymorphically
         if let elementContainer = try? container.nestedContainer(keyedBy: CodingKeys.self, forKey: .element) {
             let elementType = try elementContainer.decode(String.self, forKey: .type)
+            let elementDecoder = try container.superDecoder(forKey: .element)
+
             switch elementType {
             case "plain_text_input":
-                element = try PlainTextInputElement(from: decoder)
+                element = try PlainTextInputElement(from: elementDecoder)
             case "static_select":
-                element = try StaticSelectElement(from: decoder)
+                element = try StaticSelectElement(from: elementDecoder)
             case "datepicker":
-                element = try DatePickerElement(from: decoder)
+                element = try DatePickerElement(from: elementDecoder)
             case "multi_static_select":
-                element = try MultiStaticSelectElement(from: decoder)
+                element = try MultiStaticSelectElement(from: elementDecoder)
             case "multi_users_select":
-                element = try MultiUsersSelectElement(from: decoder)
+                element = try MultiUsersSelectElement(from: elementDecoder)
             case "multi_conversations_select":
-                element = try MultiConversationsSelectElement(from: decoder)
+                element = try MultiConversationsSelectElement(from: elementDecoder)
             case "multi_channels_select":
-                element = try MultiChannelsSelectElement(from: decoder)
+                element = try MultiChannelsSelectElement(from: elementDecoder)
             default:
                 throw DecodingError.dataCorruptedError(
                     forKey: .element,

@@ -8,18 +8,11 @@ import Foundation
 /// A URLSession-based implementation of NetworkClient
 public actor URLSessionNetworkClient: NetworkClient {
     private let session: URLSession
-    private let decoder: JSONDecoder
 
     /// Initializes a new URLSession network client
-    /// - Parameters:
-    ///   - session: The URLSession to use for requests (defaults to shared)
-    ///   - decoder: The JSONDecoder to use for decoding responses (defaults to standard)
-    public init(
-        session: URLSession = .shared,
-        decoder: JSONDecoder = JSONDecoder()
-    ) {
+    /// - Parameter session: The URLSession to use for requests (defaults to shared)
+    public init(session: URLSession = .shared) {
         self.session = session
-        self.decoder = decoder
     }
 
     public func post(url: URL, body: Data) async throws -> HTTPResponse {

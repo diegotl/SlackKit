@@ -200,6 +200,18 @@ struct BlockTests {
         #expect(json.contains("\"value\":\"opt1\""))
     }
 
+    @Test("Format DatePicker initial date")
+    func formatDatePickerInitialDate() throws {
+        // Arrange
+        let epoch = Date(timeIntervalSince1970: 0)
+
+        // Act
+        let formatted = DatePickerElement.formatDate(epoch)
+
+        // Assert
+        #expect(formatted == "1970-01-01")
+    }
+
     @Test("Encode Attachment with fields")
     func encodeAttachmentWithFields() throws {
         // Arrange

@@ -71,11 +71,19 @@ public protocol ContextElement: BlockElement {}
 
 /// A text element for context blocks
 public struct TextContextElement: ContextElement {
-    public let type: String = "plain_text"
+    public let type: String  // Can be "plain_text" or "mrkdwn"
     public var text: String
 
-    public init(text: String) {
+    public init(text: String, type: String = "plain_text") {
         self.text = text
+        self.type = type
+    }
+
+    /// Creates a markdown text context element
+    /// - Parameter markdown: The markdown text
+    /// - Returns: A TextContextElement with markdown type
+    public static func markdown(_ markdown: String) -> TextContextElement {
+        TextContextElement(text: markdown, type: "mrkdwn")
     }
 
     enum CodingKeys: String, CodingKey {
