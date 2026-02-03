@@ -86,17 +86,16 @@ public final actor SlackWebhookClient {
         // Send the request
         let response = try await networkClient.post(url: webhookURL, body: body)
 
+        // Check for rate limiting (must check before isSuccess)
+        if response.statusCode == 429 {
+            let retryAfter = extractRetryAfter(from: response) ?? 60
+            throw SlackError.rateLimitExceeded(retryAfter: retryAfter)
+        }
+
         // Check for HTTP errors
         guard response.isSuccess else {
             let bodyString = String(data: response.data, encoding: .utf8)
             throw SlackError.invalidResponse(statusCode: response.statusCode, body: bodyString)
-        }
-
-        // Check for rate limiting
-        if response.statusCode == 429 {
-            if let retryAfter = extractRetryAfter(from: response) {
-                throw SlackError.rateLimitExceeded(retryAfter: retryAfter)
-            }
         }
 
         // Decode the response

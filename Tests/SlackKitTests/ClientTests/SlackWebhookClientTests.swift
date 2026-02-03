@@ -115,6 +115,32 @@ struct SlackWebhookClientTests {
         }
     }
 
+    @Test("Handle rate limit response")
+    func handleRateLimitResponse() async throws {
+        // Arrange
+        let webhookURL = URL(string: "https://hooks.slack.com/services/T/B/C")!
+        let mockClient = MockNetworkClient()
+        let slackClient = SlackWebhookClient(webhookURL: webhookURL, networkClient: mockClient)
+
+        // Mock a 429 response without body hints
+        let responseData = #"{"error": "rate_limited"}"#.data(using: .utf8)!
+        await mockClient.addResponse(statusCode: 429, data: responseData)
+
+        // Act & Assert
+        let message = Message(text: "Test")
+        do {
+            _ = try await slackClient.send(message)
+            #expect(false, "Expected rate limit error")
+        } catch let error as SlackError {
+            switch error {
+            case .rateLimitExceeded(let retryAfter):
+                #expect(retryAfter == 60)
+            default:
+                #expect(false, "Unexpected error: \(error)")
+            }
+        }
+    }
+
     @Test("Send message with attachments")
     func sendMessageWithAttachments() async throws {
         // Arrange

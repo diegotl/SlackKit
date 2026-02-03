@@ -31,12 +31,10 @@ struct BlockTests {
     @Test("Encode SectionBlock with fields")
     func encodeSectionBlockWithFields() throws {
         // Arrange
-        let block = SectionBlock(
-            fields: [
-                .markdown("*Field 1*\nValue 1"),
-                .markdown("*Field 2*\nValue 2")
-            ]
-        )
+        let block = SectionBlock {
+            Field.markdown("*Field 1*\nValue 1")
+            Field.markdown("*Field 2*\nValue 2")
+        }
 
         // Act
         let encoder = JSONEncoder()
@@ -99,13 +97,13 @@ struct BlockTests {
     @Test("Encode ActionsBlock with button")
     func encodeActionsBlockWithButton() throws {
         // Arrange
-        let block = ActionsBlock(elements: [
+        let block = Actions {
             ButtonElement(
                 text: .plainText("Click me"),
                 actionID: "button1",
                 value: "button_value"
             )
-        ])
+        }
 
         // Act
         let encoder = JSONEncoder()
@@ -121,10 +119,10 @@ struct BlockTests {
     @Test("Encode ContextBlock")
     func encodeContextBlock() throws {
         // Arrange
-        let block = ContextBlock(elements: [
-            TextContextElement(text: "Context text"),
+        let block = Context {
+            TextContextElement(text: "Context text")
             ImageContextElement(imageURL: "https://example.com/icon.png", altText: "Icon")
-        ])
+        }
 
         // Act
         let encoder = JSONEncoder()
@@ -200,6 +198,18 @@ struct BlockTests {
         // Assert
         #expect(json.contains("\"text\""))
         #expect(json.contains("\"value\":\"opt1\""))
+    }
+
+    @Test("Format DatePicker initial date")
+    func formatDatePickerInitialDate() throws {
+        // Arrange
+        let epoch = Date(timeIntervalSince1970: 0)
+
+        // Act
+        let formatted = DatePickerElement.formatDate(epoch)
+
+        // Assert
+        #expect(formatted == "1970-01-01")
     }
 
     @Test("Encode Attachment with fields")
@@ -291,12 +301,11 @@ struct BlockTests {
         // Arrange
         let element = MultiStaticSelectElement(
             placeholder: .plainText("Select options"),
-            options: [
-                Option(text: .plainText("Option 1"), value: "opt1"),
-                Option(text: .plainText("Option 2"), value: "opt2")
-            ],
             maxSelectedItems: 3
-        )
+        ) {
+            Option(text: .plainText("Option 1"), value: "opt1")
+            Option(text: .plainText("Option 2"), value: "opt2")
+        }
 
         // Act
         let encoder = JSONEncoder()

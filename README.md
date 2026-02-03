@@ -67,6 +67,26 @@ let client = try SlackWebhookClient.create(
 try await client.send(Message(text: "Hello, Slack!"))
 ```
 
+## Convenience Builder API
+
+SlackKit includes a builder API for cleaner, more readable message construction:
+
+```swift
+// Clean, declarative syntax
+let message = Message {
+    Header("Deployment Complete!")
+    Section("Build *#123* was deployed to *production*")
+    Divider()
+    SectionBlock(
+        fields: [
+            .markdown("*Environment:*\nProduction"),
+            .markdown("*Version:*\nv2.4.1")
+        ]
+    )
+}
+try await client.send(message)
+```
+
 ## Usage
 
 ### Simple Text Message
@@ -79,52 +99,45 @@ try await client.send(message)
 ### Message with Blocks
 
 ```swift
+let message = Message {
+    Header("Deployment Complete!")
+    Section(markdown: "Build *#123* was deployed to *production*")
+    Divider()
+
+    Section {
+        Field.markdown("*Environment:*\nProduction")
+        Field.markdown("*Version:*\nv2.4.1")
+        Field.markdown("*Duration:*\n5m 32s")
+        Field.markdown("*Status:*\n:white_check_mark: Success")
+    }
+}
+try await client.send(message)
+```
+
+**With custom username and icon:**
+
+```swift
 let message = Message(
     username: "DeployBot",
-    iconEmoji: ":rocket:",
-    blocks: [
-        HeaderBlock(text: "Deployment Complete!"),
-
-        SectionBlock(
-            text: .markdown("Build *#123* was deployed to *production*")
-        ),
-
-        DividerBlock(),
-
-        SectionBlock(
-            fields: [
-                .markdown("*Environment:*\nProduction"),
-                .markdown("*Version:*\nv2.4.1"),
-                .markdown("*Duration:*\n5m 32s"),
-                .markdown("*Status:*\n:white_check_mark: Success")
-            ]
-        )
-    ]
-)
+    iconEmoji: ":rocket:"
+) {
+    Header("Deployment Complete!")
+    Section("Build *#123* was deployed to *production*")
+    Divider()
+}
 try await client.send(message)
 ```
 
 ### Message with Actions
 
 ```swift
-let message = Message(
-    text: "Approval required for production deployment",
-    blocks: [
-        SectionBlock(text: .plainText("Deploy to production?")),
-        ActionsBlock(elements: [
-            ButtonElement(
-                text: .plainText("Approve"),
-                style: .primary,
-                value: "approve"
-            ),
-            ButtonElement(
-                text: .plainText("Reject"),
-                style: .danger,
-                value: "reject"
-            )
-        ])
-    ]
-)
+let message = Message(text: "Approval required for production deployment") {
+    Section("Deploy to production?")
+    Actions {
+        ButtonElement(text: .plainText("Approve"), style: .primary, value: "approve")
+        ButtonElement(text: .plainText("Reject"), style: .danger, value: "reject")
+    }
+}
 try await client.send(message)
 ```
 
@@ -165,13 +178,18 @@ try await client.send(message)
 Text sections with optional fields:
 
 ```swift
-SectionBlock(
-    text: .markdown("Some *formatted* text"),
-    fields: [
-        .markdown("*Field 1*\nValue 1"),
-        .markdown("*Field 2*\nValue 2")
-    ]
-)
+Section("Some *formatted* text")
+// Or with markdown
+Section(markdown: "Some *formatted* text")
+```
+
+With fields using the result builder:
+
+```swift
+Section {
+    Field.markdown("*Field 1*\nValue 1")
+    Field.plainText("Field 2")
+}
 ```
 
 ### Header Block
@@ -179,7 +197,7 @@ SectionBlock(
 Large header text:
 
 ```swift
-HeaderBlock(text: "Important Announcement")
+Header("Important Announcement")
 ```
 
 ### Divider Block
@@ -187,7 +205,7 @@ HeaderBlock(text: "Important Announcement")
 Horizontal line divider:
 
 ```swift
-DividerBlock()
+Divider()
 ```
 
 ### Image Block
@@ -195,11 +213,7 @@ DividerBlock()
 Display an image:
 
 ```swift
-ImageBlock(
-    imageURL: URL(string: "https://example.com/image.png")!,
-    altText: "An example image",
-    title: .plainText("Image Title")
-)
+Image(url: "https://example.com/image.png", altText: "An example image")
 ```
 
 ### Actions Block
@@ -207,28 +221,40 @@ ImageBlock(
 Interactive buttons:
 
 ```swift
-ActionsBlock(elements: [
-    ButtonElement(
-        text: .plainText("Click Me"),
-        actionID: "button_1",
-        value: "button_value",
-        style: .primary
-    )
-])
+Actions {
+    ButtonElement(text: .plainText("Click Me"), actionID: "button_1", value: "button_value", style: .primary)
+}
+```
+
+The builder also supports conditionals and loops:
+
+```swift
+Actions {
+    ButtonElement(text: .plainText("Approve"), actionID: "approve", value: "yes")
+
+    if needsReview {
+        ButtonElement(text: .plainText("Request Review"), actionID: "review", value: "review")
+    }
+
+    for option in options {
+        ButtonElement(text: .plainText(option), actionID: "opt_\(option)", value: option)
+    }
+}
 ```
 
 ### Context Block
 
-Contextual information with images and text:
+Contextual information with text and images:
 
 ```swift
-ContextBlock(elements: [
-    TextContextElement(text: "Created by @john"),
-    ImageContextElement(
-        imageURL: "https://example.com/avatar.png",
-        altText: "Avatar"
-    )
-])
+// Simple text context
+Context("Created by @john", "2 minutes ago")
+
+// Or with elements using the builder
+Context {
+    TextContextElement(text: "Created by @john")
+    ImageContextElement(imageURL: "https://example.com/avatar.png", altText: "Avatar")
+}
 ```
 
 ### Input Block (Modals)
@@ -236,14 +262,9 @@ ContextBlock(elements: [
 Input blocks for collecting user input in modals:
 
 ```swift
-InputBlock(
-    label: .plainText("Task description"),
-    element: PlainTextInputElement(
-        placeholder: "Enter task details...",
-        multiline: true
-    ),
-    hint: .plainText("Be specific about the requirements"),
-    optional: false
+Input(
+    label: "Task description",
+    element: PlainTextInputElement(placeholder: "Enter task details...", multiline: true)
 )
 ```
 
@@ -263,26 +284,19 @@ ButtonElement(
 ### Select Menu
 
 ```swift
-StaticSelectElement(
-    placeholder: .plainText("Choose an option"),
-    options: [
-        Option(text: .plainText("Option 1"), value: "opt1"),
-        Option(text: .plainText("Option 2"), value: "opt2")
-    ]
-)
+StaticSelectElement(placeholder: .plainText("Choose an option")) {
+    Option(text: .plainText("Option 1"), value: "opt1")
+    Option(text: .plainText("Option 2"), value: "opt2")
+}
 ```
 
 ### Multi-Select Menu
 
 ```swift
-MultiStaticSelectElement(
-    placeholder: .plainText("Select options"),
-    options: [
-        Option(text: .plainText("Option 1"), value: "opt1"),
-        Option(text: .plainText("Option 2"), value: "opt2")
-    ],
-    maxSelectedItems: 3
-)
+MultiStaticSelectElement(placeholder: .plainText("Select options"), maxSelectedItems: 3) {
+    Option(text: .plainText("Option 1"), value: "opt1")
+    Option(text: .plainText("Option 2"), value: "opt2")
+}
 ```
 
 ### Date Picker
