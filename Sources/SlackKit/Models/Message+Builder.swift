@@ -89,9 +89,10 @@ extension Message {
         mrkdwn: Bool? = nil,
         @MessageBuilder content: () -> [any Block]
     ) {
+        let builtBlocks = content()
         self.init(
             text: text,
-            blocks: content(),
+            blocks: builtBlocks.isEmpty ? nil : builtBlocks,
             attachments: attachments,
             username: username,
             iconEmoji: iconEmoji,
