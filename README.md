@@ -5,21 +5,17 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/diegotl/SlackKit/actions/workflows/ci.yml">
-        <img src="https://github.com/diegotl/SlackKit/actions/workflows/ci.yml/badge.svg" alt="CI">
-    </a>
-    <a href="https://github.com/diegotl/SlackKit/releases">
-        <img src="https://img.shields.io/github/v/release/diegotl/SlackKit" alt="Version">
-    </a>
-    <a href="LICENSE">
-        <img src="https://img.shields.io/github/license/diegotl/SlackKit" alt="License">
-    </a>
+    <a href="https://github.com/diegotl/SlackKit/actions/workflows/ci.yml"><img src="https://github.com/diegotl/SlackKit/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+    <a href="https://github.com/diegotl/SlackKit/releases"><img src="https://img.shields.io/github/v/release/diegotl/SlackKit" alt="Version"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/github/license/diegotl/SlackKit" alt="License"></a>
     <img src="https://img.shields.io/badge/platform-macos%20%7C%20ios%20%7C%20tvos%20%7C%20watchos-lightgrey" alt="Platform">
     <img src="https://img.shields.io/badge/swift-6.0-orange.svg" alt="Swift">
     <img src="https://img.shields.io/badge/dependencies-zero-brightgreen" alt="Dependencies">
 </p>
 
 [Swift](https://swift.org) package for sending messages to [Slack](https://slack.com) via Incoming Webhooks with full support for [Block Kit](https://api.slack.com/block-kit).
+
+> **Also check out [MattermostKit](https://github.com/diegotl/MattermostKit)** - A companion package for sending messages to Mattermost with Slack-compatible attachments.
 
 ## Features
 
